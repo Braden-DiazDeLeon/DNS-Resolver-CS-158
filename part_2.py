@@ -113,3 +113,14 @@ def lookup_domain(domain_name):
     data, _ = sock.recvfrom(1024)
     response = parse_dns_packet(data)
     return ip_to_string(response.answers[0].data)
+
+def lookup_domain_all_ips(domain_name):
+    query = build_query(domain_name, TYPE_A)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(query, ('8.8.8.8', 53))
+    data, _ = sock.recvfrom(1024)
+    response = parse_dns_packet(data)
+    ips = set()
+    for i in response.answers:
+        ips.add(ip_to_string(i.data))
+    return ips
