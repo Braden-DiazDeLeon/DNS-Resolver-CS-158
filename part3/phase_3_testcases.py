@@ -1,4 +1,4 @@
-import phase_3, part_3, heapq, signal, re, subprocess
+import phase_3, part_3, part_2, heapq, signal, re, subprocess, io, struct
 
 print("\nPhase 3 Testcases\n\n---------\n")
 
@@ -108,5 +108,27 @@ except Exception as e:
 finally:
     part_3.send_query = original_send_query
 print(f"Loop Detection Complete!\n{correct}/1 Tests Passed.\n")
+
+print("Part 4: DNS Compression Loop Detection\n")
+
+test_loops = [b"\x00" * 12 + b"\xc0\x0c", b"\x00" * 12 + b"\xc0\x0e" + b"\xc0\x0c"]
+#Test 0: single hop loop
+#Test 1: two hop loop
+correct = 0
+for i in range(len(test_loops)):
+    try:
+        print(f"Test {i}: ")
+        if i == 0:
+            print("Single Hop Loop\n")
+        else:
+            print("Two Hop Loop\n")
+        reader = io.BytesIO(test_loops[i])
+        reader.seek(12)
+        decoded = part_2.decode_name(reader)
+    except Exception as e:
+        print(f"Caught Exception {e}\n")
+        if str(e) == "Compression Loop Detected":
+            correct += 1
+print(f"Compression Loop Detection Complete!\n{correct}/2 Tests Passed.\n")
 
 print("Phase 3 Tests Complete!\n")

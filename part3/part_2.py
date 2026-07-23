@@ -1,6 +1,8 @@
 from part_1 import build_query, DNSQuestion, DNSHeader
 from dataclasses import dataclass
 
+maxCompressionLoops = 128
+counter = 0
 
 @dataclass
 class DNSRecord:
@@ -30,7 +32,9 @@ def decode_name_simple(reader):
 
 
 def parse_question(reader):
-    name = decode_name_simple(reader)
+    global counter
+    counter = 0
+    name = decode_name(reader)
     data = reader.read(4)
     type_, class_ = struct.unpack('!HH', data)
     return DNSQuestion(name, type_, class_)
@@ -48,17 +52,23 @@ def parse_record(reader):
 
 
 def decode_name(reader):
+    global counter
     parts = []
+    counter +=1
     while (length := reader.read(1)[0]) != 0:
         if length & 192:
             parts.append(decode_compressed_name(length, reader))
             break
         else:
             parts.append(reader.read(length))
+
     return b'.'.join(parts)
 
 
 def decode_compressed_name(length, reader):
+    global counter
+    if counter >= maxCompressionLoops:
+        raise Exception("Compression Loop Detected")
     pointer_bytes = bytes([length & 63]) + reader.read(1)
     pointer = struct.unpack('!H', pointer_bytes)[0]
     current_pos = reader.tell()
@@ -69,6 +79,8 @@ def decode_compressed_name(length, reader):
 
 
 def parse_record(reader):
+    global counter
+    counter = 0
     name = decode_name(reader)
     data = reader.read(10)
     type_, class_, ttl, data_len = struct.unpack('!HHIH', data)
@@ -89,6 +101,7 @@ class DNSPacket:
 
 
 def parse_dns_packet(data):
+    global counter
     reader = BytesIO(data)
     header = parse_header(reader)
     questions = [parse_question(reader) for _ in range(header.num_questions)]
