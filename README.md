@@ -150,3 +150,19 @@ Compression loop detection is tested in the last part of `phase_3_testcases.py`.
 There are two tests: a single hop loop, and a double hop loop, both test directly
 call on the `part_2.decode_name`. Both tests are effectively the same situation,
 with one test just having a tighter loop.
+
+Test 0: Single hop loop
+`part_2.decode_name` is ran using the following input: `b"\x00" * 12 + b"\xc0\x0c"`
+It will eventually hit the max loop limit and exit out correctly, as the pointer
+points as itself, creating an infinite loop.
+
+Test 1: Double hop loop
+`part_2.decode_name` is ran using the following input: `b"\x00" * 12 + b"\xc0\x0e" + b"\xc0\x0c"`
+It will eventually hit the max loop limit and exit out correctly, simiarly to test
+0, but this time there is a second jump to extend the loop. The first pointer pointing
+forward to the second pointer and the second pointer pointing to the first pointer.
+
+When both of these testcases are tested on `part_2.decode_name` from any of the previous
+phases, the exception thrown is not `Compression Loop Detected` that was implemented here,
+rather it was `maximum recursion depth exceeded`, showing that the implemented loop detection
+is fixing the previously open gap.
