@@ -172,7 +172,7 @@ Test 2: Max pointers pointing to the same byte
 pointer pointing to the name. This was able to exit out correctly with a single hop, as only
 one pointer is used, and the rest are redundant.
 
-Test 2: Max pointers chained together to point to the first byte
+Test 3: Max pointers chained together to point to the first byte
 `part_2.decode_name` is ran using the a byte array that has a single name, and the rest are
 pointer pointing to the previous byte. This was also able to exit out correctly, without
 getting caught by the detection, showing that the loop detection allows inputs that within
