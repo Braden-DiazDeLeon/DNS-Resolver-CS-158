@@ -147,9 +147,9 @@ record before getting them from the network.
 
 #### Compression
 Compression loop detection is tested in the last part of `phase_3_testcases.py`.
-There are two tests: a single hop loop, and a double hop loop, both test directly
-call on the `part_2.decode_name`. Both tests are effectively the same situation,
-with one test just having a tighter loop.
+There are four tests: a single hop loop, a double hop loop, max pointers pointing
+at the first byte, max pointers chained together pointing to the first byte. All tests
+directly call on the `part_2.decode_name`.
 
 Test 0: Single hop loop
 `part_2.decode_name` is ran using the following input: `b"\x00" * 12 + b"\xc0\x0c"`
@@ -166,3 +166,14 @@ When both of these testcases are tested on `part_2.decode_name` from any of the 
 phases, the exception thrown is not `Compression Loop Detected` that was implemented here,
 rather it was `maximum recursion depth exceeded`, showing that the implemented loop detection
 is fixing the previously open gap.
+
+Test 2: Max pointers pointing to the same byte
+`part_2.decode_name` is ran using the a byte array that has a single name, and the rest are
+pointer pointing to the name. This was able to exit out correctly with a single hop, as only
+one pointer is used, and the rest are redundant.
+
+Test 2: Max pointers chained together to point to the first byte
+`part_2.decode_name` is ran using the a byte array that has a single name, and the rest are
+pointer pointing to the previous byte. This was also able to exit out correctly, without
+getting caught by the detection, showing that the loop detection allows inputs that within
+the specified limits and format.
