@@ -112,23 +112,55 @@ print(f"Loop Detection Complete!\n{correct}/1 Tests Passed.\n")
 print("Part 4: DNS Compression Loop Detection\n")
 
 test_loops = [b"\x00" * 12 + b"\xc0\x0c", b"\x00" * 12 + b"\xc0\x0e" + b"\xc0\x0c"]
+test3 = bytearray(b"\x00" * 12)
+
+test3.extend(b"\x01a\x00")
+
+target_offset = 12
+ptr_bytes = struct.pack("!H", 0xC000 | target_offset)
+
+for _ in range(126):
+    test3.extend(ptr_bytes)
+
+test_loops.append(test3)
+
+
+test4 = bytearray(b"\x00" * 12)
+
+test4.extend(b"\x01a\x00")
+
+prev_offset = 12
+
+for _ in range(126):
+    current_offset = len(test4)
+    ptr_bytes = struct.pack("!H", 0xC000 | prev_offset)
+    test4.extend(ptr_bytes)
+    prev_offset = current_offset
+
+start_pos = len(test4) - 2
+test_loops.append(test4)
+
 #Test 0: single hop loop
 #Test 1: two hop loop
+#Test 2: max pointers pointing at the same byte
+#Test 3: max pointers pointing backwards one all the way back
 correct = 0
-for i in range(len(test_loops)):
+for x in range(len(test_loops)):
     try:
-        print(f"Test {i}: ")
-        if i == 0:
-            print("Single Hop Loop\n")
-        else:
-            print("Two Hop Loop\n")
-        reader = io.BytesIO(test_loops[i])
-        reader.seek(12)
+        print(f"Test: {x}\n")
+        reader = io.BytesIO(test_loops[x])
+        if x < 2: reader.seek(12)
+        elif x == 2: reader.seek(15)
+        else: reader.seek(start_pos)
         decoded = part_2.decode_name(reader)
+        print("No Loop Detected\n")
+        if x > 1: correct+=1
     except Exception as e:
         print(f"Caught Exception {e}\n")
         if str(e) == "Compression Loop Detected":
             correct += 1
-print(f"Compression Loop Detection Complete!\n{correct}/2 Tests Passed.\n")
+    print(f"Number of Hops: {part_2.counter}\n")
+    part_2.counter = 0
+print(f"Compression Loop Detection Complete!\n{correct}/4 Tests Passed.\n")
 
 print("Phase 3 Tests Complete!\n")

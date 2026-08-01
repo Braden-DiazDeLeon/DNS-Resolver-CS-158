@@ -1,7 +1,7 @@
 from part_1 import build_query, DNSQuestion, DNSHeader
 from dataclasses import dataclass
 
-maxCompressionLoops = 128
+maxCompressionLoops = 135
 counter = 0
 
 @dataclass
@@ -54,7 +54,6 @@ def parse_record(reader):
 def decode_name(reader):
     global counter
     parts = []
-    counter +=1
     while (length := reader.read(1)[0]) != 0:
         if length & 192:
             parts.append(decode_compressed_name(length, reader))
@@ -67,6 +66,7 @@ def decode_name(reader):
 
 def decode_compressed_name(length, reader):
     global counter
+    counter+=1
     if counter >= maxCompressionLoops:
         raise Exception("Compression Loop Detected")
     pointer_bytes = bytes([length & 63]) + reader.read(1)
