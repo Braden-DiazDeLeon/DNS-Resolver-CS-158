@@ -168,13 +168,12 @@ rather it was `maximum recursion depth exceeded`, showing that the implemented l
 is fixing the previously open gap.
 
 Test 2: Max pointers pointing to the same byte
-`part_2.decode_name` is ran using a byte array that has a single name, and the rest are
-pointer pointing to the name. This was able to exit out correctly with a single hop, as only
+`part_2.decode_name` is ran using a byte array that has a single label, and the rest are
+pointer pointing to that label. This was able to exit out correctly with a single hop, as only
 one pointer is used, and the rest are redundant.
 
 Test 3: Max pointers chained together to point to the first byte
-`part_2.decode_name` is ran using a byte array that has a single name, and the rest are
-pointer pointing to the previous byte. This was also able to exit out correctly with the
-expected number of hops, that being 126-128 hops, without getting caught by the detection.
-This testcase showing that the loop detection not incorrectly raising exceptions for legal
-inputs.
+`part_2.decode_name` is ran using a byte array that has a single label, and the rest are
+pointer pointing back two bytes. This was also able to exit out correctly with the expected
+number of hops, that being 126-128 hops, without getting caught by the detection. This 
+testcase showing that the loop detection not incorrectly raising exceptions for legal inputs.
