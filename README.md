@@ -152,11 +152,13 @@ at the first byte, max pointers chained together pointing to the first byte. All
 directly call on the `part_2.decode_name`.
 
 Test 0: Single hop loop
+
 `part_2.decode_name` is ran using the following input: `b"\x00" * 12 + b"\xc0\x0c"`
 It will eventually hit the max loop limit and exit out correctly, as the pointer
 points as itself, creating an infinite loop.
 
 Test 1: Double hop loop
+
 `part_2.decode_name` is ran using the following input: `b"\x00" * 12 + b"\xc0\x0e" + b"\xc0\x0c"`
 It will eventually hit the max loop limit and exit out correctly, simiarly to test
 0, but this time there is a second jump to extend the loop. The first pointer pointing
@@ -168,11 +170,13 @@ rather it was `maximum recursion depth exceeded`, showing that the implemented l
 is fixing the previously open gap.
 
 Test 2: Max pointers pointing to the same byte
+
 `part_2.decode_name` is ran using a byte array that has a single label, and the rest are
 pointer pointing to that label. This was able to exit out correctly with a single hop, as only
 one pointer is used, and the rest are redundant.
 
 Test 3: Max pointers chained together to point to the first byte
+
 `part_2.decode_name` is ran using a byte array that has a single label, and the rest are
 pointer pointing back two bytes. This was also able to exit out correctly with the expected
 number of hops, that being 126-128 hops, without getting caught by the detection. This 
