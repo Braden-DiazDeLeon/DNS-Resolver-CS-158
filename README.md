@@ -176,4 +176,5 @@ Test 3: Max pointers chained together to point to the first byte
 `part_2.decode_name` is ran using a byte array that has a single label, and the rest are
 pointer pointing back two bytes. This was also able to exit out correctly with the expected
 number of hops, that being 126-128 hops, without getting caught by the detection. This 
-testcase showing that the loop detection not incorrectly raising exceptions for legal inputs.
+testcase showing that the loop detection does not incorrectly raising exceptions for legal
+inputs.
