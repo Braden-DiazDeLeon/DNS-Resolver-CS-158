@@ -1,4 +1,4 @@
-import part_3, heapq, time
+import part_3, heapq, time, sys
 
 TYPE_A = part_3.TYPE_A
 TYPE_CNAME = part_3.TYPE_CNAME
@@ -66,3 +66,18 @@ def resolve(domain_name, record_type):
                 nameserver = resolve(ns_domain, part_3.TYPE_A)
             else:
                 raise Exception('something went wrong')
+
+
+if __name__ == '__main__':
+    record_types = {'A': TYPE_A, 'CNAME': TYPE_CNAME}
+    if not 2 <= len(sys.argv) <= 3:
+        sys.exit(f'usage: python3 {sys.argv[0]} <domain> [A|CNAME]')
+    # trailing dot and case are legal in a fully qualified name but our wire encoding wants neither
+    domain = sys.argv[1].strip().rstrip('.').lower()
+    requested = (sys.argv[2] if len(sys.argv) == 3 else 'A').upper()
+    if not domain or requested not in record_types:
+        sys.exit(f'usage: python3 {sys.argv[0]} <domain> [A|CNAME]')
+    try:
+        print(f'\n{domain} {requested} -> {resolve(domain, record_types[requested])}')
+    except Exception as e:
+        sys.exit(f'\nCould not resolve {domain}: {e}')
