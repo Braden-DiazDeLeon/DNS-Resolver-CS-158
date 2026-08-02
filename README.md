@@ -189,14 +189,135 @@ returns an IP because the CNAME and A record are bundled in the response but the
 phase 3 resolver still handles the result correctly and matches dig.
 
 The baseline resolver is bounded by an alarm so that the www.reddit.com hang can be 
-shown without causing the entire testcases to hang. 
+shown without causing the entire testcases to hang.
+
+```
+Test 2: www.reddit.com
+Baseline part_3.resolve: Failed! Something Went Wrong.
+Checking Caches...
+
+Cache Miss.
+Querying 198.41.0.4 for www.reddit.com
+Checking Caches...
+
+Cache Miss.
+Querying 192.41.162.30 for www.reddit.com
+Checking Caches...
+
+Cache Miss.
+Querying 205.251.193.122 for www.reddit.com
+CNAME: www.reddit.com -> reddit.map.fastly.net (restarting query at canonical name)
+
+Checking Caches...
+
+Cache Miss.
+Querying 198.41.0.4 for reddit.map.fastly.net
+Checking Caches...
+
+Cache Miss.
+Querying 192.55.83.30 for reddit.map.fastly.net
+Checking Caches...
+
+Cache Miss.
+Querying 23.235.32.32 for reddit.map.fastly.net
+Fetched IP: 151.101.201.140
+dig IP's: {'151.101.201.140'}
+Correct IP!
+```
 
 The second part tests caching by reusing the phase 2 caching test. Test 0 populates the
 cache with the CNAME hop and the final A record. The cache stores `en.wikipedia.org 5` 
-which points to dyna.wikimedia.org and to 198.35.26.224. Test 1 is  from the cache
-printing Found CNAME followed by Found Record. Test 2 then gets rid if 
-stale entries by printing Expired Record for both the final A record and the CNAME 
+which points to dyna.wikimedia.org and to 198.35.26.224.
+```
+Test 0:
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 198.41.0.4 for en.wikipedia.org
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 199.249.112.1 for en.wikipedia.org
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 208.80.154.238 for en.wikipedia.org
+CNAME: en.wikipedia.org -> dyna.wikimedia.org (restarting query at canonical name)
+
+Checking Caches...
+
+Cache Miss.
+Querying 198.41.0.4 for dyna.wikimedia.org
+Checking Caches...
+
+Cache Miss.
+Querying 199.249.112.1 for dyna.wikimedia.org
+Checking Caches...
+
+Cache Miss.
+Querying 208.80.154.238 for dyna.wikimedia.org
+Fetched IP: 198.35.26.224
+dig IP's: {'198.35.26.224'}
+Correct IP!
+```
+Test 1 is  from the cache printing Found CNAME followed by Found Record.
+```
+Test 1:
+Checking Caches...
+
+Found CNAME: en.wikipedia.org -> dyna.wikimedia.org
+
+Checking Caches...
+
+Found Record: 198.35.26.224
+
+Fetched IP: 198.35.26.224
+dig IP's: {'198.35.26.224'}
+Correct IP!
+```
+Test 2 then gets rid of stale entries by printing Expired Record for both the final A record and the CNAME 
 record before getting them from the network.
+```
+Test 2:
+Checking Caches...
+
+Expired Record: (1, 'dyna.wikimedia.org', 1)
+
+Expired Record: (1, 'en.wikipedia.org', 5)
+
+Cache Miss.
+Querying 198.41.0.4 for en.wikipedia.org
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 199.249.112.1 for en.wikipedia.org
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 208.80.154.238 for en.wikipedia.org
+CNAME: en.wikipedia.org -> dyna.wikimedia.org (restarting query at canonical name)
+
+Checking Caches...
+
+Cache Miss.
+Querying 198.41.0.4 for dyna.wikimedia.org
+Checking Caches...
+
+Cache Miss.
+Querying 199.249.112.1 for dyna.wikimedia.org
+Checking Caches...
+
+Cache Miss.
+Querying 208.80.154.238 for dyna.wikimedia.org
+Fetched IP: 198.35.26.224
+dig IP's: {'198.35.26.224'}
+Correct IP!
+```
 
 #### Compression
 Compression loop detection is tested in the last part of `phase_3_testcases.py`.
@@ -210,12 +331,28 @@ Test 0: Single hop loop
 It will eventually hit the max loop limit and exit out correctly, as the pointer
 points as itself, creating an infinite loop.
 
+```
+Test: 0
+
+Caught Exception Compression Loop Detected
+
+Number of Hops: 135
+```
+
 Test 1: Double hop loop
 
 `part_2.decode_name` is ran using the following input: `b"\x00" * 12 + b"\xc0\x0e" + b"\xc0\x0c"`
 It will eventually hit the max loop limit and exit out correctly, simiarly to test
 0, but this time there is a second jump to extend the loop. The first pointer pointing
 forward to the second pointer and the second pointer pointing to the first pointer.
+
+```
+Test: 1
+
+Caught Exception Compression Loop Detected
+
+Number of Hops: 135
+```
 
 When both of these testcases are tested on `part_2.decode_name` from any of the previous
 phases, the exception thrown is not `Compression Loop Detected` that was implemented here,
@@ -228,6 +365,14 @@ Test 2: Max pointers pointing to the same byte
 pointer pointing to that label. This was able to exit out correctly with a single hop, as only
 one pointer is used, and the rest are redundant.
 
+```
+Test: 2
+
+No Loop Detected
+
+Number of Hops: 1
+```
+
 Test 3: Max pointers chained together to point to the first byte
 
 `part_2.decode_name` is ran using a byte array that has a single label, and the rest are
@@ -235,3 +380,11 @@ pointer pointing back two bytes. This was also able to exit out correctly with t
 number of hops, that being 126-128 hops, without getting caught by the detection. This 
 testcase showing that the loop detection does not incorrectly raising exceptions for legal
 inputs.
+
+```
+Test: 3
+
+No Loop Detected
+
+Number of Hops: 126
+```
