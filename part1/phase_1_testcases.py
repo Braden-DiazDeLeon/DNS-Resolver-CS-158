@@ -1,7 +1,7 @@
 import part_3, part_2
 
 print("\nPhase 1 Testcases\n\n---------\n")
-test_domains = ["example.com", "www.example.com", "google.com", "twitter.com", "yahoo.com", "reddit.com", "www.lasminassunnyvale.com", "target.com", "lolesports.net", "incorrectTest", "incorrectTest.two"]
+test_domains = ["example.com", "www.example.com", "google.com", "twitter.com", "yahoo.com", "reddit.com", "www.lasminassunnyvale.com", "target.com", "lolesports.net", "incorrectTest", "incorrectTest.two", "en.wikipedia.org"]
 #somtimes twitter works, sometimes it doesnt because google is not grabbing a whole list of the possible IPs
 correct = 0
 for i in range(len(test_domains)):

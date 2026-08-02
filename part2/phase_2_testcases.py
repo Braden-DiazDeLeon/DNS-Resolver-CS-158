@@ -1,4 +1,4 @@
-import phase_2, part_2, time
+import phase_2, part_2, time, io, struct
 
 print("\nPhase 2 Testcases\n\n---------\n")
 test_domains = ["example.com", "example.com", "example.com"]
@@ -24,4 +24,12 @@ for i in range(len(test_domains)):
         print()
     except:
         print("Failed!\nSomething Went Wrong.\n")
+
+try:
+    loop_payload = b"\x00" * 12 + b"\xc0\x0c"
+    reader = io.BytesIO(loop_payload)
+    reader.seek(12)
+    decoded = part_2.decode_name(reader)
+except Exception as e:
+    print(f"Caught Exception {e}")
 print(f"Phase 2 Tests Complete!\n{correct}/{len(test_domains)} Tests Passed.\n")

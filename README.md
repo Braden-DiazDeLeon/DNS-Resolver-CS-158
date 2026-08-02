@@ -3,7 +3,7 @@
 Each part lives in its own self-contained folder with the code it needs and its
 own test cases, so it can be run independently.
 
-## part1/ — Recursive Resolver
+## Phase 1 (part1/) — Recursive Resolver
 
 Files:
  - `part_1.py` — build DNS queries
@@ -19,11 +19,32 @@ python phase_1_testcases.py
 
 Testcases:
  - Correctness, compared with IP addresses obtained from google
- - Decision-making when given multiple choices
+```
+Test 0:
+Querying 198.41.0.4 for example.com
+Querying 192.41.162.30 for example.com
+Querying 108.162.192.162 for example.com
+Fetched IP: 104.20.23.154
+Google IP: 104.20.23.154
+Correct IP!
+```
  - Subdomain
+```
+Test 11:
+Querying 198.41.0.4 for en.wikipedia.org
+Querying 199.249.112.1 for en.wikipedia.org
+Querying 208.80.154.238 for en.wikipedia.org
+Failed!
+Something Went Wrong.
+```
  - Non-existent domain
-
-## part2/ — Caching Resolver
+```
+Test 9:
+Querying 198.41.0.4 for incorrectTest
+Failed!
+Something Went Wrong.
+```
+## Phase 2 (part2/) — Caching Resolver
 
 Files:
  - `part_1.py`, `part_2.py`, `part_3.py` — resolver code from part 1
@@ -38,9 +59,41 @@ python phase_2_testcases.py
 
 Testcases:
  - The cache being used, for both domains and subqueries
- - Time to live being handled correctly
+```
+Test 1:
+Checking Caches...
 
-## part3/ — CNAME chasing and loop detection, compression loop detection
+Found Record: 172.66.147.243
+
+Fetched IP: 172.66.147.243
+Google IP's: {'104.20.23.154', '172.66.147.243'}
+Correct IP!
+```
+ - Time to live being handled correctly
+```
+Test 2:
+Checking Caches...
+
+Expired Record: (1, 'example.com', 1)
+
+Cache Miss.
+Querying 198.41.0.4 for example.com
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 192.41.162.30 for example.com
+Checking Caches...
+
+No Expired Records
+Cache Miss.
+Querying 108.162.192.162 for example.com
+Fetched IP: 172.66.147.243
+Google IP's: {'104.20.23.154', '172.66.147.243'}
+Correct IP!
+```
+
+## Phase 3 (part3/) — CNAME chasing and loop detection, compression loop detection
 
 Files:
  - `part_1.py`, `part_2.py`, `part_3.py` — resolver code from part 1.
